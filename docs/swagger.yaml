@@ -1,0 +1,102 @@
+basePath: /
+definitions:
+  codewax_internal_dtos.AlreadyExistsResponse:
+    properties:
+      error:
+        example: Already in use
+        type: string
+    type: object
+  codewax_internal_dtos.ServerErrorResponse:
+    properties:
+      error:
+        example: An unexpected error occurred
+        type: string
+    type: object
+  codewax_internal_dtos.ValidationErrorResponse:
+    properties:
+      details:
+        additionalProperties:
+          type: string
+        type: object
+      error:
+        example: Validation failed
+        type: string
+    type: object
+  internal_handlers_auth.RegisterInput:
+    properties:
+      email:
+        example: user@example.com
+        maxLength: 255
+        type: string
+      name:
+        example: User Name
+        maxLength: 255
+        type: string
+      password:
+        example: SecurePass123!
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_handlers_auth.RegisterResponse:
+    properties:
+      is_admin:
+        example: false
+        type: boolean
+      message:
+        example: Registration successful
+        type: string
+      user_email:
+        example: user@example.com
+        type: string
+      user_name:
+        example: User Name
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for Log Relay Project.
+  title: Log Relay API
+  version: "1.0"
+paths:
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Creates a user account, hashes the password, and hashes and API token.
+        Returns a one-time API token and sets an HttpOnly 'token' cookie.
+      parameters:
+      - description: User Registration Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers_auth.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_handlers_auth.RegisterResponse'
+        "400":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/codewax_internal_dtos.ValidationErrorResponse'
+        "409":
+          description: User already exists with email
+          schema:
+            $ref: '#/definitions/codewax_internal_dtos.AlreadyExistsResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/codewax_internal_dtos.ServerErrorResponse'
+      summary: Register New User
+      tags:
+      - accounts
+swagger: "2.0"

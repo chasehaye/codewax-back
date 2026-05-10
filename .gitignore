@@ -1,0 +1,10 @@
+.env
+.idea
+.vscode
+.data
+*.swp
+build/*
+main
+*cookie.txt
+
+./build/server.log
