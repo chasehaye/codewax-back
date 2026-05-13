@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"net/url"
-
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -27,10 +25,7 @@ var (
 func init() {
     _ = godotenv.Load()
     adminEmail = strings.ToLower(strings.TrimSpace(os.Getenv("ADMIN_EMAIL")))
-	frontendURL := os.Getenv("FRONTEND_URL")
-    if u, err := url.Parse(frontendURL); err == nil {
-        cookieDomain = u.Hostname()
-    }
+
 }
 
 
@@ -130,7 +125,7 @@ func RegisterUser(c *gin.Context, db *gorm.DB) {
         jwtToken,               // Value
         86400,                  // MaxAge (24 hours in seconds)
         "/",                    // Path
-        cookieDomain,           // Domain (leave empty for current domain)
+        "",           // Domain (leave empty for current domain)
         config.IsProduction(),  // Secure (SET TO TRUE IN PRODUCTION/HTTPS)
         true,                   // HttpOnly (CRITICAL: prevents JS access)
     )
@@ -193,13 +188,13 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
         c.JSON(http.StatusInternalServerError, dtos.ServerErrorResponse{Error: "Failed to create session"})
         return
     }
-
+    log.Printf("IsProduction: %v", config.IsProduction())
     c.SetCookie(
         "token",
         jwtToken,
         86400,
         "/",
-        cookieDomain,
+        "",
         config.IsProduction(),
         true,
     )
