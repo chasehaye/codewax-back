@@ -33,6 +33,9 @@ func Setup(db *gorm.DB) *gin.Engine {
     r.Use(middleware.CORSMiddleware())
 
     routes.Auth(r, db)
+    routes.Conversation(r, db)
+    routes.Message(r, db)
+    routes.Repository(r, db)
 
 
     if !config.IsProduction() {

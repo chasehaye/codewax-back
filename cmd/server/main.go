@@ -39,8 +39,18 @@ func main() {
     log.Println("--Database connection verified--------------------------------------")
 
     // ------------------ Migrate ------------------
+    if err := db.Exec("CREATE EXTENSION IF NOT EXISTS vector").Error; err != nil {
+        log.Printf("failed to create vector extension: %v", err)
+    }
+
     err = db.AutoMigrate(
-        &models.User{}, 
+        &models.User{},
+        &models.PasswordReset{},
+        &models.EmailChangeRequest{},
+        &models.Conversation{},
+        &models.Message{},
+        &models.Repository{},
+        &models.RepositoryChunk{},
     )
     if err != nil {
         log.Fatalf("Migration failed: %v", err)

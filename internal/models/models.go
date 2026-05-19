@@ -35,22 +35,9 @@ type User struct {
     Email     string    `gorm:"uniqueIndex;type:varchar(255);not null"`
 	IsAdmin   bool      `gorm:"default:false"`
 
-    Workspaces []Workspace `gorm:"foreignKey:UserID"`
+    Conversations []Conversation `gorm:"foreignKey:UserID"`
+    Repositories  []Repository   `gorm:"foreignKey:UserID"`
 }
-
-type Workspace struct {
-    ID        uint           `gorm:"primarykey"`
-    CreatedAt time.Time
-    UpdatedAt time.Time
-    DeletedAt gorm.DeletedAt `gorm:"index"`
-
-    UserID uint `gorm:"index;not null"`
-    User   User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-
-    Repositories []Repository `gorm:"foreignKey:WorkspaceID"`
-    Conversations []Conversation `gorm:"foreignKey:WorkspaceID"`
-}
-
 
 type Conversation struct {
     ID        uint           `gorm:"primarykey"`
@@ -59,11 +46,11 @@ type Conversation struct {
     DeletedAt gorm.DeletedAt `gorm:"index"`
 
     Title string `gorm:"type:varchar(255)"`
+    UserID uint   `gorm:"index;not null"`
+    User   User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-    WorkspaceID uint    `gorm:"index;not null"`
-    Workspace   Workspace `gorm:"foreignKey:WorkspaceID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-
-    Messages []Message `gorm:"foreignKey:ConversationID"`
+    Messages     []Message    `gorm:"foreignKey:ConversationID"`
+    Repositories []Repository `gorm:"many2many:conversation_repositories;"`
 }
 
 type Message struct {
@@ -90,7 +77,27 @@ type Repository struct {
     Name       string `gorm:"type:varchar(255);not null"`
     GithubURL  string `gorm:"type:text"`
     Branch     string `gorm:"default:main"`
+    Status    string `gorm:"type:varchar(50);default:'pending'"` // "pending" | "processing" | "ready" | "failed"
 
-    WorkspaceID uint    `gorm:"index;not null"`
-    Workspace   Workspace `gorm:"foreignKey:WorkspaceID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+    UserID uint `gorm:"index;not null"`
+    User   User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+    Conversations []Conversation `gorm:"many2many:conversation_repositories;"`
+    Chunks        []Chunk `gorm:"foreignKey:RepositoryID"`
+}
+
+type Chunk struct {
+    ID        uint           `gorm:"primarykey"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
+
+    RepositoryID uint       `gorm:"index;not null"`
+    Repository   Repository `gorm:"foreignKey:RepositoryID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+    FilePath  string `gorm:"type:varchar(500);not null"`
+    StartLine int    `gorm:"not null"`
+    EndLine   int    `gorm:"not null"`
+    Content   string `gorm:"type:text;not null"`
+    Embedding []byte `gorm:"type:vector(1024)"`
 }

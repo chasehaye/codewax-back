@@ -188,7 +188,6 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
         c.JSON(http.StatusInternalServerError, dtos.ServerErrorResponse{Error: "Failed to create session"})
         return
     }
-    log.Printf("IsProduction: %v", config.IsProduction())
     c.SetCookie(
         "token",
         jwtToken,

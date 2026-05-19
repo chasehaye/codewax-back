@@ -20,6 +20,7 @@ type Config struct {
     AWSAccessKey  string
     AWSSecretKey  string
     AWSRegion     string
+    Voyage_API_Key string
 }
 
 var envIsProduction bool
@@ -43,6 +44,8 @@ func CheckRequiredEnvVarsAndLoad() *Config {
 		"AWS_DEFAULT_REGION",
 		"SENDER_ADDRESS",
 		"PORT",
+        "VOYAGE_API_KEY",
+        
 	}
 	
 	for _, v := range required {
@@ -75,5 +78,6 @@ func CheckRequiredEnvVarsAndLoad() *Config {
         AWSAccessKey:  os.Getenv("AWS_ACCESS_KEY_ID"),
         AWSSecretKey:  os.Getenv("AWS_SECRET_ACCESS_KEY"),
         AWSRegion:     os.Getenv("AWS_DEFAULT_REGION"),
+        Voyage_API_Key: os.Getenv("VOYAGE_API_KEY"),
     }
 }
