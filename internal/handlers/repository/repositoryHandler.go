@@ -71,3 +71,22 @@ func GetRepository(c *gin.Context, db *gorm.DB) {
 
     c.JSON(http.StatusOK, NewRepositoryResponse(repo))
 }
+
+func ListRepositories(c *gin.Context, db *gorm.DB) {
+    userID := c.MustGet("userID").(uint)
+
+    var repos []models.Repository
+    if err := db.Where("user_id = ?", userID).Order("created_at DESC").Find(&repos).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, dtos.ServerErrorResponse{
+            Error: "failed to fetch repositories",
+        })
+        return
+    }
+
+    response := make([]RepositoryResponse, len(repos))
+    for i, repo := range repos {
+        response[i] = NewRepositoryResponse(repo)
+    }
+
+    c.JSON(http.StatusOK, response)
+}

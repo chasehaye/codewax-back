@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"time"
 	"codewax/internal/models"
+	"time"
 )
 
 type CreateRepositoryRequest struct {

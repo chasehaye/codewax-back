@@ -14,5 +14,6 @@ func Repository(r *gin.Engine, db *gorm.DB){
     {
         protected.POST("/repositories", func(c *gin.Context) { repository.CreateRepository(c, db) })
         protected.GET("/repositories/:id", func(c *gin.Context) { repository.GetRepository(c, db) })
+		protected.GET("/repositories", func(c *gin.Context) { repository.ListRepositories(c, db) })
     }
 }

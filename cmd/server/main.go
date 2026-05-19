@@ -50,7 +50,7 @@ func main() {
         &models.Conversation{},
         &models.Message{},
         &models.Repository{},
-        &models.RepositoryChunk{},
+        &models.Chunk{},
     )
     if err != nil {
         log.Fatalf("Migration failed: %v", err)
