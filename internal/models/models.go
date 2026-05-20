@@ -3,6 +3,7 @@ package models
 import (
     "time"
     "gorm.io/gorm"
+    pgvector "github.com/pgvector/pgvector-go"
 )
 
 type PasswordReset struct {
@@ -99,5 +100,15 @@ type Chunk struct {
     StartLine int    `gorm:"not null"`
     EndLine   int    `gorm:"not null"`
     Content   string `gorm:"type:text;not null"`
-    Embedding []byte `gorm:"type:vector(1024)"`
+    Embedding pgvector.Vector `gorm:"type:vector(1024)"`
+}
+
+type TokenUsage struct {
+	ID        uint      `gorm:"primarykey"`
+	CreatedAt time.Time
+ 
+    UserID uint `gorm:"index;not null"`
+	RepoID uint `gorm:"index;not null"`
+	Tokens int `gorm:"not null"`
+	Month  int `gorm:"not null"`
 }

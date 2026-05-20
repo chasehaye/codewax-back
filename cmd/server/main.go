@@ -51,6 +51,7 @@ func main() {
         &models.Message{},
         &models.Repository{},
         &models.Chunk{},
+        &models.TokenUsage{},
     )
     if err != nil {
         log.Fatalf("Migration failed: %v", err)

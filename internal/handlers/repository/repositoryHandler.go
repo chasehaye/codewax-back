@@ -90,3 +90,31 @@ func ListRepositories(c *gin.Context, db *gorm.DB) {
 
     c.JSON(http.StatusOK, response)
 }
+
+func DeleteRepository(c *gin.Context, db *gorm.DB) {
+    userID := c.MustGet("userID").(uint)
+    repoID := c.Param("id")
+
+    var repo models.Repository
+    if err := db.Where("id = ? AND user_id = ?", repoID, userID).First(&repo).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, dtos.ServerErrorResponse{
+                Error: "repository not found",
+            })
+            return
+        }
+        c.JSON(http.StatusInternalServerError, dtos.ServerErrorResponse{
+            Error: "failed to fetch repository",
+        })
+        return
+    }
+
+    if err := db.Delete(&repo).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, dtos.ServerErrorResponse{
+            Error: "failed to delete repository",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "repository deleted successfully"})
+}
