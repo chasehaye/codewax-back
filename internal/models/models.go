@@ -67,8 +67,6 @@ type Message struct {
     Conversation   Conversation `gorm:"foreignKey:ConversationID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
-
-
 type Repository struct {
     ID        uint           `gorm:"primarykey"`
     CreatedAt time.Time
@@ -111,4 +109,14 @@ type TokenUsage struct {
 	RepoID uint `gorm:"index;not null"`
 	Tokens int `gorm:"not null"`
 	Month  int `gorm:"not null"`
+}
+
+type TokenUsageAgent struct {
+	ID        uint      `gorm:"primarykey"`
+	CreatedAt time.Time
+
+	UserID uint `gorm:"index;not null"`
+	RepoID uint `gorm:"index;not null"`
+	Tokens int  `gorm:"not null"`
+	Month  int  `gorm:"not null"`
 }

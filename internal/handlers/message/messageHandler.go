@@ -9,6 +9,7 @@ import (
 
 	"codewax/internal/models"
 	"codewax/internal/dtos"
+    "codewax/internal/services"
 )
 
 func CreateMessage(c *gin.Context, db *gorm.DB) {
@@ -61,5 +62,29 @@ func CreateMessage(c *gin.Context, db *gorm.DB) {
         db.Model(&conversation).Update("title", title)
     }
 
-    c.JSON(http.StatusCreated, NewMessageResponse(message))
+    c.Header("Content-Type", "text/event-stream")
+    c.Header("Cache-Control", "no-cache")
+    c.Header("Connection", "keep-alive")
+
+    fullResponse, err := services.ProcessMessage(db, conversation, input.Content, func(chunk string) {
+        c.SSEvent("message", chunk)
+        c.Writer.Flush()
+    })
+    if err != nil {
+        c.SSEvent("error", err.Error())
+        return
+    }
+
+    assistantMessage := models.Message{
+        ConversationID: conversation.ID,
+        Role:           "assistant",
+        Content:        fullResponse,
+    }
+
+    if err := db.Create(&assistantMessage).Error; err != nil {
+        c.SSEvent("error", "failed to save assistant message")
+        return
+    }
+
+    c.SSEvent("done", NewMessageResponse(assistantMessage))
 }
